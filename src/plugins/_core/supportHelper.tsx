@@ -100,7 +100,7 @@ async function generateDebugInfoMessage() {
     const commonIssues = {
         "NoRPC enabled": Vencord.Plugins.isPluginEnabled("NoRPC"),
         "Activity Sharing disabled": tryOrElse(() => !ShowCurrentGame.getSetting(), false),
-        "Equicord DevBuild": !IS_STANDALONE,
+        "BestCord DevBuild": !IS_STANDALONE,
         "Has UserPlugins": Object.values(PluginMeta).some(m => m.userPlugin),
         "More than two weeks out of date": BUILD_TIMESTAMP < Date.now() - 12096e5,
     };
@@ -176,15 +176,15 @@ export default definePlugin({
 
     commands: [
         {
-            name: "equicord-debug",
-            description: "Send Equicord debug info",
+            name: "BestCord-debug",
+            description: "Send BestCord debug info",
             // @ts-ignore
             predicate: ctx => isPluginDev(UserStore.getCurrentUser()?.id) || isEquicordPluginDev(UserStore.getCurrentUser()?.id) || GUILD_ID === ctx?.guild?.id,
             execute: async () => ({ content: await generateDebugInfoMessage() })
         },
         {
-            name: "equicord-plugins",
-            description: "Send Equicord plugin list",
+            name: "BestCord-plugins",
+            description: "Send BestCord plugin list",
             // @ts-ignore
             predicate: ctx => isPluginDev(UserStore.getCurrentUser()?.id) || isEquicordPluginDev(UserStore.getCurrentUser()?.id) || GUILD_ID === ctx?.guild?.id,
             execute: () => {
@@ -211,9 +211,9 @@ export default definePlugin({
                         <img src="https://media.tenor.com/QtGqjwBpRzwAAAAi/wumpus-dancing.gif" />
                         <Forms.FormText>Before you ask for help,</Forms.FormText>
                         <Forms.FormText>Check for updates and if this</Forms.FormText>
-                        <Forms.FormText>issue could be caused by Equicord!</Forms.FormText>
+                        <Forms.FormText>issue could be caused by BestCord!</Forms.FormText>
                     </div>,
-                    confirmText: "Go to Equicord Support",
+                    confirmText: "Go to BestCord Support",
                     onConfirm() {
                         clicked = true;
                         VencordNative.native.openExternal("https://discord.gg/5Xh2W87egW");
@@ -232,7 +232,7 @@ export default definePlugin({
                     return Alerts.show({
                         title: "Hold on!",
                         body: <div>
-                            <Forms.FormText>You are using an outdated version of Equicord! Chances are, your issue is already fixed.</Forms.FormText>
+                            <Forms.FormText>You are using an outdated version of BestCord! Chances are, your issue is already fixed.</Forms.FormText>
                             <Forms.FormText className={Margins.top8}>
                                 Please first update before asking for support!
                             </Forms.FormText>
@@ -254,9 +254,9 @@ export default definePlugin({
                 return Alerts.show({
                     title: "Hold on!",
                     body: <div>
-                        <Forms.FormText>You are using an externally updated Equicord version, the ability to help you here may be limited.</Forms.FormText>
+                        <Forms.FormText>You are using an externally updated BestCord version, the ability to help you here may be limited.</Forms.FormText>
                         <Forms.FormText className={Margins.top8}>
-                            Please join the <Link href="https://discord.gg/5Xh2W87egW">Equicord Server</Link> for support,
+                            Please join the <Link href="https://discord.gg/bestcord">BestCord Server</Link> for support,
                             or if this issue persists on Vencord, continue on.
                         </Forms.FormText>
                     </div>
@@ -267,11 +267,11 @@ export default definePlugin({
                 return Alerts.show({
                     title: "Hold on!",
                     body: <div>
-                        <Forms.FormText>You are using a custom build of Equicord, which we do not provide support for!</Forms.FormText>
+                        <Forms.FormText>You are using a custom build of BestCord, which we do not provide support for!</Forms.FormText>
 
                         <Forms.FormText className={Margins.top8}>
-                            We only provide support for <Link href="https://github.com/Equicord/Equicord">official builds</Link>.
-                            Either <Link href="https://github.com/Equicord/Equilotl">switch to an official build</Link> or figure your issue out yourself.
+                            We only provide support for <Link href="https://github.com/bestcordofficial">official builds</Link>.
+                            Either <Link href="https://github.com/bestcordofficiall">switch to an official build</Link> or figure your issue out yourself.
                         </Forms.FormText>
 
                         <Text variant="text-md/bold" className={Margins.top8}>You will be banned from receiving support if you ignore this rule.</Text>
@@ -319,13 +319,13 @@ export default definePlugin({
         }
 
         if (props.channel.id === SUPPORT_CHANNEL_ID && PermissionStore.can(PermissionsBits.SEND_MESSAGES, props.channel)) {
-            if (props.message.content.includes("/equicord-debug") || props.message.content.includes("/equicord-plugins")) {
+            if (props.message.content.includes("/BestCord-debug") || props.message.content.includes("/BestCord-plugins")) {
                 buttons.push(
                     <Button
                         key="vc-dbg"
                         onClick={async () => sendMessage(props.channel.id, { content: await generateDebugInfoMessage() })}
                     >
-                        Run /equicord-debug
+                        Run /BestCord-debug
                     </Button>,
                     <Button
                         key="vc-plg-list"
@@ -336,7 +336,7 @@ export default definePlugin({
                             }
                         }}
                     >
-                        Run /equicord-plugins
+                        Run /BestCord-plugins
                     </Button>
                 );
             }

@@ -135,7 +135,7 @@ export const actions: ButtonAction[] = [
 
             if (isOutdated) {
                 setTimeout(() => showNotification({
-                    title: "A Equicord update is available!",
+                    title: "A BestCord update is available!",
                     body: "Click here to view the update",
                     permanent: true,
                     noPersist: true,
@@ -153,7 +153,7 @@ export const actions: ButtonAction[] = [
                     }
                 });
             }
-        }, registrar: "Equicord"
+        }, registrar: "BestCord"
     },
 
     {

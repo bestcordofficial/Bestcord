@@ -86,53 +86,53 @@ export default definePlugin({
         return [
             {
                 section: SectionTypes.HEADER,
-                label: "Equicord",
+                label: "BestCord",
                 className: "vc-settings-header"
             },
             {
-                section: "EquicordSettings",
-                label: "Equicord",
-                searchableTitles: ["Equicord", "Settings", "Equicord Settings"],
+                section: "BestCordSettings",
+                label: "BestCord",
+                searchableTitles: ["BestCord", "Settings", "BestCord Settings"],
                 element: VencordTab,
                 className: "vc-settings"
             },
             {
-                section: "EquicordPlugins",
+                section: "BestCordPlugins",
                 label: "Plugins",
                 searchableTitles: ["Plugins"],
                 element: PluginsTab,
                 className: "vc-plugins"
             },
             {
-                section: "EquicordThemes",
+                section: "BestCordThemes",
                 label: "Themes",
                 searchableTitles: ["Themes"],
                 element: ThemesTab,
                 className: "vc-themes"
             },
             !IS_UPDATER_DISABLED && {
-                section: "EquicordUpdater",
+                section: "BestCordUpdater",
                 label: "Updater",
                 searchableTitles: ["Updater"],
                 element: UpdaterTab,
                 className: "vc-updater"
             },
             {
-                section: "EquicordCloud",
+                section: "BestCordCloud",
                 label: "Cloud",
                 searchableTitles: ["Cloud"],
                 element: CloudTab,
                 className: "vc-cloud"
             },
             {
-                section: "EquicordSettingsSync",
+                section: "BestCordSettingsSync",
                 label: "Backup & Restore",
                 searchableTitles: ["Backup & Restore"],
                 element: BackupAndRestoreTab,
                 className: "vc-backup-restore"
             },
             IS_DEV && {
-                section: "EquicordPatchHelper",
+                section: "BestCordPatchHelper",
                 label: "Patch Helper",
                 searchableTitles: ["Patch Helper"],
                 element: PatchHelperTab,
@@ -201,7 +201,7 @@ export default definePlugin({
     options: {
         settingsLocation: {
             type: OptionType.SELECT,
-            description: "Where to put the Equicord settings section",
+            description: "Where to put the BestCord settings section",
             options: [
                 { label: "At the very top", value: "top" },
                 { label: "Above the Nitro section", value: "aboveNitro", default: true },
@@ -241,7 +241,7 @@ export default definePlugin({
     getInfoRows() {
         const { electronVersion, chromiumVersion, additionalInfo } = this;
 
-        const rows = [`Equicord ${gitHash}${additionalInfo}`];
+        const rows = [`BestCord ${gitHash}${additionalInfo}`];
 
         if (electronVersion) rows.push(`Electron ${electronVersion}`);
         if (chromiumVersion) rows.push(`Chromium ${chromiumVersion}`);

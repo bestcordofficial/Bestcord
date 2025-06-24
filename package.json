@@ -3,13 +3,13 @@
     "private": "true",
     "version": "1.12.3",
     "description": "The other cutest Discord client mod",
-    "homepage": "https://github.com/Equicord/Equicord#readme",
+    "homepage": "https://github.com/bestcordofficial/Bestcord#readme",
     "bugs": {
-        "url": "https://github.com/Equicord/Equicord/issues"
+        "url": "https://github.com/bestcordofficial/Bestcord/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Equicord/Equicord.git"
+        "url": "git+https://github.com/bestcordofficial/Bestcord.git"
     },
     "license": "GPL-3.0-or-later",
     "author": "BestCord",
@@ -33,7 +33,10 @@
         "lint:fix": "pnpm lint --fix",
         "test": "pnpm buildStandalone && pnpm testTsc && pnpm lint:fix && pnpm lint-styles && pnpm generatePluginJson",
         "testWeb": "pnpm lint && pnpm buildWeb && pnpm testTsc",
-        "testTsc": "tsc --noEmit"
+        "testTsc": "tsc --noEmit",
+        "release:prepare": "node scripts/setup-release.js",
+        "release:build": "node scripts/build-all-platforms.js",
+        "release:publish": "gh release create latest --generate-notes"
     },
     "dependencies": {
         "@ffmpeg/ffmpeg": "^0.12.10",

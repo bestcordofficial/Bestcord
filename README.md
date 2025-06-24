@@ -1,10 +1,10 @@
-# [<img src="./browser/icon.png" width="40" align="left" alt="Equicord">](https://github.com/Equicord/Equicord) Equicord
+# [<img src="./browser/icon.png" width="40" align="left" alt="BestCord">](https://github.com/bestcordofficial/Bestcord) BestCord
 
-[![Equibop](https://img.shields.io/badge/Equibop-grey?style=flat)](https://github.com/Equicord/Equibop)
-[![Tests](https://github.com/Equicord/Equicord/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Equicord/Equicord/actions/workflows/test.yml)
-[![Discord](https://img.shields.io/discord/1173279886065029291.svg?color=768AD4&label=Discord&logo=discord&logoColor=white)](https://discord.gg/5Xh2W87egW)
+[![Release](https://img.shields.io/github/v/release/bestcordofficial/Bestcord?style=flat)](https://github.com/bestcordofficial/Bestcord/releases)
+[![Downloads](https://img.shields.io/github/downloads/bestcordofficial/Bestcord/total?style=flat)](https://github.com/bestcordofficial/Bestcord/releases)
+[![Tests](https://github.com/bestcordofficial/Bestcord/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/bestcordofficial/Bestcord/actions/workflows/test.yml)
 
-Equicord is a fork of [Vencord](https://github.com/Vendicated/Vencord), with over 300+ plugins.
+BestCord is "the other cutest Discord client mod but better" - a powerful fork with 300+ plugins and multi-platform support.
 
 You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, changes, chat or even support.
 

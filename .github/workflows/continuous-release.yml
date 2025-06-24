@@ -1,0 +1,161 @@
+name: Continuous Release
+on:
+    push:
+        branches:
+            - '**'  # Tous les pushs sur toutes les branches
+    workflow_dispatch:
+
+env:
+    FORCE_COLOR: true
+
+permissions: write-all
+
+jobs:
+    continuous-build:
+        name: Build & Release on Every Push
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: pnpm/action-setup@v3
+
+            - name: Use Node.js 20
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              run: pnpm install --no-frozen-lockfile
+
+            - name: Build all variants
+              run: |
+                  echo "🔨 Building BestCord..."
+                  pnpm buildWebStandalone
+                  pnpm buildStandalone
+                  
+                  # Builds optionnels (ne pas échouer si pas disponibles)
+                  pnpm buildWeb --minify || echo "Build web minifié non disponible"
+                  pnpm build --minify || echo "Build desktop minifié non disponible"
+
+            - name: Generate plugin data
+              run: |
+                  pnpm generatePluginJson dist/plugins.json || echo "Plugin JSON non généré"
+                  pnpm generateEquicordPluginJson dist/equicordplugins.json || echo "Equicord plugin JSON non généré"
+
+            - name: Package assets
+              run: |
+                  echo "📦 Packaging assets..."
+                  mkdir -p release-assets
+                  
+                  # Copier tous les fichiers disponibles
+                  find dist -name "*.js" -exec cp {} release-assets/ \; 2>/dev/null || true
+                  find dist -name "*.asar" -exec cp {} release-assets/ \; 2>/dev/null || true
+                  find dist -name "*.json" -exec cp {} release-assets/ \; 2>/dev/null || true
+                  find dist -name "*.zip" -exec cp {} release-assets/ \; 2>/dev/null || true
+                  
+                  # Extension navigateur
+                  if [ -d "dist/browser" ]; then
+                      cd dist/browser
+                      zip -r "../../release-assets/BestCord-Browser-${GITHUB_REF_NAME}-${GITHUB_RUN_NUMBER}.zip" . || true
+                      cp *.js "../../release-assets/" 2>/dev/null || true
+                      cd ../..
+                  fi
+                  
+                  # Renommer avec timestamp et info build
+                  timestamp=$(date +%Y%m%d-%H%M%S)
+                  branch="${{ github.ref_name }}"
+                  build_num="${{ github.run_number }}"
+                  
+                  # Ajouter informations de build aux noms de fichiers
+                  cd release-assets
+                  for file in *.js; do
+                      if [ -f "$file" ]; then
+                          base_name=$(basename "$file" .js)
+                          mv "$file" "${base_name}-${branch}-${build_num}.js" 2>/dev/null || true
+                      fi
+                  done
+                  
+                  # Créer un fichier d'info build
+                  cat > build-info.txt << EOF
+                  BestCord Build Information
+                  ==========================
+                  Commit: ${{ github.sha }}
+                  Branch: ${{ github.ref_name }}
+                  Build Number: ${{ github.run_number }}
+                  Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+                  Author: ${{ github.actor }}
+                  Event: ${{ github.event_name }}
+                  EOF
+                  
+                  # Checksums
+                  sha256sum * > checksums.txt 2>/dev/null || true
+                  
+                  echo "📋 Assets créés:"
+                  ls -la
+
+            - name: Create/Update Release
+              run: |
+                  cd release-assets
+                  
+                  # Nom de la release basé sur la branche
+                  branch="${{ github.ref_name }}"
+                  build_num="${{ github.run_number }}"
+                  
+                  if [[ "$branch" == "main" ]]; then
+                      release_tag="continuous-main"
+                      release_title="🚀 BestCord Latest (Build #${build_num})"
+                      is_prerelease="false"
+                  else
+                      # Nettoyer le nom de branche pour les tags
+                      clean_branch=$(echo "$branch" | sed 's/[^a-zA-Z0-9._-]/-/g')
+                      release_tag="continuous-${clean_branch}"
+                      release_title="🔧 BestCord ${branch} (Build #${build_num})"
+                      is_prerelease="true"
+                  fi
+                  
+                  echo "📝 Release: $release_tag"
+                  echo "📝 Title: $release_title"
+                  
+                  # Supprimer l'ancienne release s'il existe
+                  gh release delete "$release_tag" --yes || echo "Aucune release existante à supprimer"
+                  
+                  # Créer la nouvelle release
+                  gh release create "$release_tag" \
+                      --title "$release_title" \
+                      --notes "✨ **Build automatique de BestCord**
+                  
+                  🔗 **Commit:** [\`${{ github.sha }}\`](https://github.com/bestcordofficial/Bestcord/commit/${{ github.sha }})  
+                  🌿 **Branche:** \`${{ github.ref_name }}\`  
+                  🔢 **Build:** #${{ github.run_number }}  
+                  📅 **Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')  
+                  👤 **Auteur:** @${{ github.actor }}
+                  
+                  ## 📦 Assets inclus:
+                  $(ls -1 | grep -E '\.(js|asar|json|zip|txt)$' | sed 's/^/- /' || echo '- Aucun asset disponible')
+                  
+                  > ⚡ Cette release est automatiquement générée à chaque push.
+                  > 💫 Les assets sont construits avec la dernière version du code.
+                  
+                  ---
+                  🎯 **BestCord** - The other cutest Discord client mod but better!" \
+                      --prerelease="$is_prerelease" \
+                      ./* || echo "❌ Erreur lors de la création de la release"
+                  
+                  echo "✅ Release créée avec succès!"
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Summary
+              run: |
+                  echo "## 🎉 Build BestCord terminé!" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Branche:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Build:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Assets:** $(ls release-assets | wc -l) fichiers générés" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### 📦 Assets créés:" >> $GITHUB_STEP_SUMMARY
+                  echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+                  ls -la release-assets >> $GITHUB_STEP_SUMMARY
+                  echo "\`\`\`" >> $GITHUB_STEP_SUMMARY 

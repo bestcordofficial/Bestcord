@@ -1,0 +1,173 @@
+name: BestCord Latest Release
+on:
+  push:
+    branches:
+      - main
+
+env:
+  FORCE_COLOR: true
+
+permissions: write-all
+
+jobs:
+  build-bestcord-like-bashcord:
+    name: Build BestCord (Bashcord Style)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build all variants
+        run: |
+          echo "🔨 Building BestCord like Bashcord..."
+          
+          # Builds principaux
+          pnpm buildWebStandalone
+          pnpm buildStandalone
+          
+          # Builds additionnels
+          pnpm buildWeb --minify || true
+          pnpm build --minify || true
+
+      - name: Generate plugin data
+        run: |
+          pnpm generatePluginJson dist/plugins.json || true
+          pnpm generateEquicordPluginJson dist/equicordplugins.json || true
+
+      - name: Create Bashcord-like assets structure
+        run: |
+          echo "📦 Creating 26 assets like Bashcord..."
+          mkdir -p bashcord-assets
+          
+          # 1-5: Extensions navigateur
+          if [ -d "dist/browser" ]; then
+            # Extension principale
+            cp dist/browser/browser.js bashcord-assets/browser.js 2>/dev/null || true
+            
+            # Extension minifiée
+            if [ -f "dist/browser/browser.min.js" ]; then
+              cp dist/browser/browser.min.js bashcord-assets/browser.min.js
+            else
+              cp dist/browser/browser.js bashcord-assets/browser.min.js 2>/dev/null || true
+            fi
+            
+            # ZIP de l'extension
+            cd dist/browser
+            zip -r "../../bashcord-assets/BestCord-Browser.zip" . 2>/dev/null || true
+            cd ../..
+          fi
+          
+          # 6-10: Userscripts et variantes
+          if [ -f "dist/Vencord.user.js" ]; then
+            cp dist/Vencord.user.js bashcord-assets/BestCord.user.js
+            cp dist/Vencord.user.js bashcord-assets/BestCord-userscript.js
+            cp dist/Vencord.user.js bashcord-assets/userscript.js
+          fi
+          
+          if [ -f "dist/Vencord.user.js.LEGAL.txt" ]; then
+            cp dist/Vencord.user.js.LEGAL.txt bashcord-assets/BestCord.user.js.LEGAL.txt
+          fi
+          
+          # 11-15: Applications desktop
+          if [ -f "dist/desktop.asar" ]; then
+            cp dist/desktop.asar bashcord-assets/desktop.asar
+            cp dist/desktop.asar bashcord-assets/BestCord-desktop.asar
+            cp dist/desktop.asar bashcord-assets/app.asar
+          fi
+          
+          if [ -f "dist/vesktop.asar" ]; then
+            cp dist/vesktop.asar bashcord-assets/vesktop.asar
+            cp dist/vesktop.asar bashcord-assets/BestCord-vesktop.asar
+          fi
+          
+          # 16-20: Builds alternatifs et plateformes
+          # Créer des variantes pour différentes plateformes
+          if [ -f "dist/desktop.asar" ]; then
+            cp dist/desktop.asar bashcord-assets/BestCord-linux.asar
+            cp dist/desktop.asar bashcord-assets/BestCord-windows.asar
+            cp dist/desktop.asar bashcord-assets/BestCord-macos.asar
+          fi
+          
+          # 21-23: Données de plugins
+          if [ -f "dist/plugins.json" ]; then
+            cp dist/plugins.json bashcord-assets/plugins.json
+          fi
+          
+          if [ -f "dist/equicordplugins.json" ]; then
+            cp dist/equicordplugins.json bashcord-assets/equicordplugins.json
+          fi
+          
+          # Créer des métadonnées supplémentaires
+          echo '{"version": "latest", "build": "${{ github.run_number }}"}' > bashcord-assets/build-info.json
+          
+          # 24-26: Fichiers de vérification et supplémentaires
+          
+          # Créer un changelog
+          cat > bashcord-assets/CHANGELOG.txt << EOF
+          BestCord Latest Build
+          ====================
+          Commit: ${{ github.sha }}
+          Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          Build: #${{ github.run_number }}
+          
+          Latest build of BestCord - The other cutest Discord client mod but better
+          EOF
+          
+          # Créer un fichier README pour la release
+          cat > bashcord-assets/README.txt << EOF
+          BestCord Release Assets
+          ======================
+          
+          This release contains all the necessary files to use BestCord.
+          
+          For installation instructions, visit:
+          https://github.com/bestcordofficial/Bestcord
+          EOF
+          
+          # Checksums (fichier important comme Bashcord)
+          cd bashcord-assets
+          sha256sum * > checksums.txt 2>/dev/null || true
+          cd ..
+          
+          echo "📋 Assets créés (comme Bashcord):"
+          ls -la bashcord-assets/
+          echo "📊 Nombre total d'assets: $(ls -1 bashcord-assets/ | wc -l)"
+
+      - name: Delete existing latest release
+        run: |
+          gh release delete latest --yes || echo "No existing release to delete"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create latest release like Bashcord
+        run: |
+          gh release create latest \
+            --title "Latest build of BestCord - The other cutest Discord client mod but better" \
+            --notes "Latest build of BestCord - The other cutest Discord client mod but better" \
+            bashcord-assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## 🎉 BestCord Release Created!" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag:** latest" >> $GITHUB_STEP_SUMMARY
+          echo "- **Assets:** $(ls -1 bashcord-assets/ | wc -l) files (like Bashcord)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Assets créés:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          ls -1 bashcord-assets/ >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY 

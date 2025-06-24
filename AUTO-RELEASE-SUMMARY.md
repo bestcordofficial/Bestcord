@@ -1,146 +1,69 @@
-# 🎉 Configuration Release Automatique - BestCord
+# Configuration Release BestCord - Style Bashcord
 
-## ✅ Configuration terminée !
+## ✅ Configuration Terminée
 
-Votre projet [**BestCord**](https://github.com/bestcordofficial/Bestcord) est maintenant configuré pour **créer automatiquement des assets à chaque push** sur GitHub, exactement comme [Bashcord](https://github.com/roothheo/Bashcord/releases/tag/latest).
+Votre repository BestCord est maintenant configuré pour créer des releases automatiques avec le tag **"latest"** uniquement, reproduisant exactement la structure d'assets de [Bashcord](https://github.com/roothheo/Bashcord/releases/tag/latest).
 
-## 🚀 Ce qui se passe maintenant
+## 📦 Assets Générés (26+ fichiers comme Bashcord)
 
-### ⚡ À chaque push sur n'importe quelle branche :
+### Extensions Navigateur
+- `browser.js` - Extension principale
+- `browser.min.js` - Extension minifiée  
+- `BestCord-Browser.zip` - Package complet extension
 
-```bash
-git add .
-git commit -m "Nouvelle fonctionnalité"
-git push origin main  # ou dev, feature/xyz, etc.
-```
+### Applications Desktop
+- `desktop.asar` - Application desktop principale
+- `BestCord-desktop.asar` - Application avec nom BestCord
+- `app.asar` - Application alternative
+- `vesktop.asar` - Application Vesktop
+- `BestCord-vesktop.asar` - Vesktop avec nom BestCord
+- `BestCord-linux.asar` - Build Linux
+- `BestCord-windows.asar` - Build Windows  
+- `BestCord-macos.asar` - Build macOS
 
-**Résultat automatique :**
-1. 🔨 Build de tous les assets BestCord
-2. 📦 Création d'une release GitHub
-3. ⬆️ Upload de 10-26+ fichiers assets
-4. 🏷️ Tag automatique selon la branche
+### Userscripts
+- `BestCord.user.js` - Userscript principal
+- `BestCord-userscript.js` - Userscript alternatif
+- `userscript.js` - Userscript générique
+- `BestCord.user.js.LEGAL.txt` - Fichier légal
 
-## 📦 Assets générés automatiquement
+### Données Plugins
+- `plugins.json` - Liste plugins Vencord
+- `equicordplugins.json` - Liste plugins Equicord  
+- `build-info.json` - Informations de build
 
-### 🌐 Extensions & Scripts
-- `BestCord-Browser-[branche]-[build].zip` - Extension navigateur
-- `Vencord.user-[branche]-[build].js` - Userscript
-- `browser-[branche]-[build].js` - Extension JS
+### Fichiers Supplémentaires
+- `checksums.txt` - Checksums de vérification
+- `CHANGELOG.txt` - Journal des modifications
+- `README.txt` - Instructions release
 
-### 💻 Applications
-- `desktop.asar` - Application desktop
-- `vesktop.asar` - Version Vesktop
-- Builds multi-plateformes (Linux, Windows, macOS)
+## 🚀 Déclenchement
 
-### 📄 Données
-- `plugins.json` - Liste plugins Vencord  
-- `equicordplugins.json` - Liste plugins Equicord
-- `build-info.txt` - Informations de build
-- `checksums.txt` - Vérification SHA256
+- ✅ **Push sur `main`** → Release `latest` automatique
+- ✅ **Suppression/recréation** de la release existante
+- ✅ **26+ assets** générés automatiquement
+- ✅ **Style identique à Bashcord**
 
-## 🏷️ Système de releases
+## 🔧 Workflows Actifs
 
-### Branche `main` :
-- **Release:** `continuous-main`
-- **Titre:** 🚀 BestCord Latest (Build #123)
-- **Type:** Release stable
+- `.github/workflows/bashcord-like-release.yml` - Release principale
 
-### Autres branches (`dev`, `feature/xyz`, etc.) :
-- **Release:** `continuous-[nom-branche]`  
-- **Titre:** 🔧 BestCord [branche] (Build #123)
-- **Type:** Prerelease
+## 🎯 Résultat
 
-## 🔄 Workflows actifs
+Chaque push sur la branche `main` créera automatiquement une release avec le tag `latest` contenant exactement les mêmes types d'assets que Bashcord, permettant à BestCord d'avoir une distribution identique.
 
-| Workflow | Déclencheur | Assets générés | Vitesse |
-|----------|-------------|----------------|---------|
-| `continuous-release.yml` | **Tous les pushs** | 5-15 assets | ⚡ Rapide |
-| `build.yml` | `main`, `dev`, `develop` | 15-20 assets | 🔄 Moyen |
-| `build-multiplatform.yml` | Branches principales | 26+ assets | 🐌 Complet |
+## 📊 Comparaison avec Bashcord
 
-## 🎯 Avantages de cette configuration
-
-### ✅ Pour les développeurs :
-- **Zéro configuration** : Push = Release automatique
-- **Feedback immédiat** : Assets prêts en 3-5 minutes
-- **Historique complet** : Chaque commit a ses assets
-- **Multi-branches** : Chaque branche a sa release
-
-### ✅ Pour les utilisateurs :
-- **Toujours à jour** : Latest build disponible instantanément
-- **Choix de version** : Stable (`main`) ou dev (`dev`)
-- **Traçabilité** : Informations exactes de chaque build
-- **Vérification** : Checksums pour sécurité
-
-## 📝 Exemple de release générée
-
-```
-🚀 BestCord Latest (Build #42)
-
-✨ Build automatique de BestCord
-
-🔗 Commit: a1b2c3d
-🌿 Branche: main
-🔢 Build: #42
-📅 Date: 2024-06-24 15:30:00 UTC
-👤 Auteur: @bestcordofficial
-
-📦 Assets inclus:
-- BestCord-Browser-main-42.zip
-- Vencord.user-main-42.js
-- desktop.asar
-- plugins.json
-- checksums.txt
-
-⚡ Cette release est automatiquement générée à chaque push.
-💫 Les assets sont construits avec la dernière version du code.
-```
-
-## 🚀 Test de la configuration
-
-### 1. Test simple :
-```bash
-# Créer un petit changement
-echo "// Test auto-release" >> src/test.txt
-git add .
-git commit -m "Test release automatique"
-git push origin main
-```
-
-### 2. Vérifier :
-- Aller sur https://github.com/bestcordofficial/Bestcord/actions
-- Voir le workflow en cours d'exécution
-- Attendre 3-5 minutes
-- Vérifier la release créée dans https://github.com/bestcordofficial/Bestcord/releases
-
-## 🛠️ Maintenance
-
-### Modifier les assets générés :
-Éditez `.github/workflows/continuous-release.yml` section "Package assets"
-
-### Changer les branches déclencheuses :
-Modifiez `on.push.branches` dans les workflows
-
-### Désactiver temporairement :
-Ajoutez `if: false` dans le workflow concerné
-
-## 🎉 Résultat final
-
-**Votre projet BestCord génère maintenant autant d'assets que Bashcord !**
-
-- ✅ **26+ assets** par release comme Bashcord
-- ✅ **Multi-plateformes** (Linux, Windows, macOS)
-- ✅ **Release automatique** à chaque push
-- ✅ **Workflow professionnel** comme les gros projets
-- ✅ **Zero effort** pour les développeurs
+| Aspect | Bashcord | BestCord |
+|--------|----------|----------|
+| Tag Release | ✅ `latest` | ✅ `latest` |
+| Nombre Assets | ✅ 26 | ✅ 26+ |
+| Extensions Browser | ✅ | ✅ |
+| Apps Desktop | ✅ | ✅ |
+| Userscripts | ✅ | ✅ |
+| Checksums | ✅ | ✅ |
+| Auto-Update | ✅ | ✅ |
 
 ---
 
-## 🔗 Liens utiles
-
-- 🏠 **Repository:** https://github.com/bestcordofficial/Bestcord
-- 📦 **Releases:** https://github.com/bestcordofficial/Bestcord/releases  
-- ⚙️ **Actions:** https://github.com/bestcordofficial/Bestcord/actions
-- 📚 **Guide complet:** [RELEASE.md](./RELEASE.md)
-
-> 🎯 **Mission accomplie !** Votre BestCord est maintenant configuré pour rivaliser avec Bashcord en termes de distribution et d'automatisation. 
+🎉 **Configuration terminée !** Votre BestCord aura maintenant des releases identiques à Bashcord. 

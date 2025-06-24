@@ -164,8 +164,8 @@ jobs:
                   # Upload tous les assets
                   gh release upload "$release_tag" --clobber dist/release/*
 
-                         - name: Upload Plugins JSON to external repo (optional)
-               if: ${{ env.REPO != 'bestcordofficial/Bestcord' }}
+            - name: Upload Plugins JSON to external repo (optional)
+              if: ${{ env.REPO != 'bestcordofficial/Bestcord' }}
               run: |
                   git config --global user.name "GitHub-Actions"
                   git config --global user.email actions@github.com

@@ -68,6 +68,7 @@ jobs:
 
             - name: Upload Equicord Stable
               if: ${{ github.ref_name == 'main' }}
+              env: GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   gh release upload latest --clobber dist/release/*
 

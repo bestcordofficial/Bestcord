@@ -9,15 +9,15 @@ on:
 
 env:
     FORCE_COLOR: true
-    GITHUB_TOKEN: ${{ github.token }}
-    REPO: roothheo/bashcord
+    GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+    REPO: bestcordofficial/Bestcord
     USERNAME: GitHub-Actions
 
 permissions: write-all
 
 jobs:
     Build:
-        name: Build Bashcord
+        name: Build Bestcord
         runs-on: ubuntu-latest
 
         steps:
@@ -67,14 +67,14 @@ jobs:
             - name: Create or Update Release
               if: ${{ github.ref_name == 'main' }}
               env:
-                  GH_TOKEN: ${{ github.token }}
+                  GH_TOKEN: ${{ secrets.PAT_TOKEN }}
               run: |
                   # Créer la release si elle n'existe pas
-                  gh release create latest --title "Bashcord Latest" --notes "Latest build of Bashcord - The other cutest Discord client mod but made by Ba\$h" --prerelease || true
+                  gh release create latest --title "Bestcord Latest" --notes "Latest build of Bestcord - The other cutest Discord client mod but with some additionals plugins and better" --prerelease || true
                   # Upload des fichiers
                   gh release upload latest --clobber dist/release/*
 
-            - name: Upload Plugins JSON to Equibored repo
+            - name: Upload Plugins JSON to Bestcord repo
               run: |
                   git config --global user.name "GitHub-Actions"
                   git config --global user.email actions@github.com

@@ -10,6 +10,7 @@ on:
 env:
     FORCE_COLOR: true
     GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+    GH_TOKEN: ${{ secrets.PAT_TOKEN }}
     REPO: bestcordofficial/Bestcord
     USERNAME: GitHub-Actions
 
@@ -67,20 +68,32 @@ jobs:
             - name: Create or Update Release
               if: ${{ github.ref_name == 'main' }}
               env:
-                  GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+                  GH_TOKEN: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
               run: |
+                  # Vérifier que le token est défini
+                  if [ -z "$GH_TOKEN" ]; then
+                    echo "Erreur: GH_TOKEN n'est pas défini"
+                    exit 1
+                  fi
                   # Créer la release si elle n'existe pas
                   gh release create latest --title "Bestcord Latest" --notes "Latest build of Bestcord - The other cutest Discord client mod but with some additionals plugins and better" --prerelease || true
                   # Upload des fichiers
                   gh release upload latest --clobber dist/release/*
 
             - name: Upload Plugins JSON to Bestcord repo
+              env:
+                  GH_TOKEN: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
               run: |
+                  # Vérifier que le token est défini
+                  if [ -z "$GH_TOKEN" ]; then
+                    echo "Erreur: GH_TOKEN n'est pas défini pour l'upload des plugins"
+                    exit 1
+                  fi
                   git config --global user.name "GitHub-Actions"
                   git config --global user.email actions@github.com
-                  git clone https://$USERNAME:$GITHUB_TOKEN@github.com/$REPO.git plugins
+                  git clone https://$USERNAME:$GH_TOKEN@github.com/$REPO.git plugins
                   cd plugins
                   cp ../dist/release/*plugins.json .
                   git add -A
                   git commit -m "Plugins for https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
-                  git push --force https://$USERNAME:$GITHUB_TOKEN@github.com/$REPO.git
+                  git push --force https://$USERNAME:$GH_TOKEN@github.com/$REPO.git

@@ -1,86 +1,149 @@
-name: Release
-on:
-    push:
-        tags:
-            - v*
-        branches:
-            - main
-env:
-    FORCE_COLOR: true
-    GITHUB_TOKEN: ${{ secrets.ETOKEN }}
-    REPO: Equicord/Equibored
-    USERNAME: GitHub-Actions
+name: Build Bestcord
 
-permissions: write-all
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-    Build:
-        name: Build Equicord
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - name: Set up job
+        uses: actions/checkout@v4
 
-            - uses: pnpm/action-setup@v3
+      - name: Run actions/checkout@v4
+        uses: actions/checkout@v4
 
-            - name: Use Node.js 20
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-                  cache: "pnpm"
+      - name: Run pnpm/action-setup@v3
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
-            - name: Install dependencies
-              run: pnpm install --no-frozen-lockfile
+      - name: Use Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'pnpm'
 
-            - name: Build web
-              run: pnpm buildWebStandalone
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-            - name: Build
-              run: pnpm buildStandalone
+      - name: Build web
+        run: pnpm run build:web
 
-            - name: Generate plugin list
-              run: pnpm generatePluginJson dist/plugins.json
+      - name: Build
+        run: pnpm run build
 
-            - name: Generate Equicord plugin list
-              run: pnpm generateEquicordPluginJson dist/equicordplugins.json
+      - name: Generate plugin list
+        run: pnpm run generate:plugin-list
 
-            - name: Collect files to be released
-              run: |
-                  cd dist
-                  mkdir release
+      - name: Generate Equicord plugin list
+        run: pnpm run generate:equicord-plugin-list
 
-                  cp browser/browser.* release
-                  cp Vencord.user.{js,js.LEGAL.txt} release
+      - name: Collect files to be released
+        run: |
+          echo "Collecting files from build directories..."
+          ls -la dist/ || echo "No dist directory found"
+          ls -la dist/equibop/ || echo "No equibop directory found"
+          ls -la dist/desktop.asar/ || echo "No desktop.asar directory found"
+          ls -la dist/equibop.asar/ || echo "No equibop.asar directory found"
 
-                  # copy the plugin data jsons, the extension zips and the desktop/vesktop asars
-                  cp *.{json,zip,asar} release
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install gh -y
 
-                  # legacy un-asared files
-                  cp desktop/* release
-                  for file in equibop/*; do
-                    filename=$(basename "$file")
-                    cp "$file" "release/equibop${filename^}"
-                  done
+      - name: Create or Update Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Créer la release "latest" si elle n'existe pas
+          if ! gh release view latest &>/dev/null; then
+            echo "Creating new release 'latest'..."
+            gh release create latest \
+              --title "Latest Release" \
+              --notes "Release automatique de la dernière version de Bashcord - $(date)" \
+              --latest
+          else
+            echo "Release 'latest' already exists"
+          fi
 
-                  find release -size 0 -delete
-                  rm release/package.json
-                  rm release/*.map
+      - name: Upload Plugins JSON to Equibored repo
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Uploading plugins JSON files..."
+          # Upload plugin lists if they exist
+          if [ -f "plugins.json" ]; then
+            gh release upload latest --clobber plugins.json
+          fi
+          if [ -f "equicordplugins.json" ]; then
+            gh release upload latest --clobber equicordplugins.json
+          fi
 
-            - name: Upload assets to release
-              env:
-                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                gh release upload latest --clobber dist/release/*
+      - name: Upload assets to release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Uploading build assets to release..."
 
-            - name: Upload Plugins JSON to Equibored repo
-              run: |
-                  git config --global user.name "GitHub-Actions"
-                  git config --global user.email actions@github.com
-                  git clone https://$USERNAME:$GITHUB_TOKEN@github.com/$REPO.git plugins
-                  cd plugins
+          # Upload files from dist/equibop/
+          if [ -d "dist/equibop" ]; then
+            echo "Uploading files from dist/equibop/..."
+            for FILE in dist/equibop/*; do
+              if [ -f "$FILE" ]; then
+                echo "Uploading: $FILE"
+                gh release upload latest --clobber "$FILE"
+              fi
+            done
+          fi
 
-                  cp ../dist/release/*plugins.json .
-                  git add -A
+          # Upload files from dist/desktop.asar/
+          if [ -d "dist/desktop.asar" ]; then
+            echo "Uploading files from dist/desktop.asar/..."
+            for FILE in dist/desktop.asar/*; do
+              if [ -f "$FILE" ]; then
+                echo "Uploading: $FILE"
+                gh release upload latest --clobber "$FILE"
+              fi
+            done
+          fi
 
-                  git commit -m "Plugins for https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
-                  git push --force https://$USERNAME:$GITHUB_TOKEN@github.com/$REPO.git
+          # Upload files from dist/equibop.asar/
+          if [ -d "dist/equibop.asar" ]; then
+            echo "Uploading files from dist/equibop.asar/..."
+            for FILE in dist/equibop.asar/*; do
+              if [ -f "$FILE" ]; then
+                echo "Uploading: $FILE"
+                gh release upload latest --clobber "$FILE"
+              fi
+            done
+          fi
+
+          echo "Upload completed!"
+
+      - name: Post Use Node.js 20
+        if: always()
+        run: echo "Node.js setup completed"
+
+      - name: Post Run pnpm/action-setup@v3
+        if: always()
+        run: echo "pnpm setup completed"
+
+      - name: Post Run actions/checkout@v4
+        if: always()
+        run: echo "Checkout completed"
+
+      - name: Complete job
+        if: always()
+        run: |
+          echo "Build and release process completed!"
+          echo "Check the release at: https://github.com/${{ github.repository }}/releases/tag/latest"

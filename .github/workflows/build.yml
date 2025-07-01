@@ -66,11 +66,11 @@ jobs:
                   rm release/package.json
                   rm release/*.map
 
-            - name: Upload Equicord Stable
-              if: ${{ github.ref_name == 'main' }}
-              env: GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Upload assets to release
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  gh release upload latest --clobber dist/release/*
+                gh release upload latest --clobber dist/release/*
 
             - name: Upload Plugins JSON to Equibored repo
               run: |
